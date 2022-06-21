@@ -376,7 +376,7 @@ static int check_timeouts(aeEventLoop *loop, long long id, void *data) {
     uint64_t maxAge = now - (cfg.timeout * 1000);
 
     for (uint64_t i = 0; i < thread->connections; i++, c++) {
-        if (maxAge > c->start) {
+        if (maxAge > c->start && c->start != 0) {
             thread->errors.timeout++;
         }
     }
@@ -484,6 +484,7 @@ static int delay_request(aeEventLoop *loop, long long id, void *data) {
 static int response_complete(http_parser *parser) {
     connection *c = parser->data;
     thread *thread = c->thread;
+    c->start = 0;
     uint64_t now = time_us();
     int status = parser->status_code;
 
